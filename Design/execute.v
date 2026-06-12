@@ -64,7 +64,7 @@ module execute (
         endcase
     end
 
-    // NOVO: AVALIADOR DE DESVIOS (Resolve as 6 instrucoes B-Type)
+    // AVALIADOR DE DESVIOS (Resolve as 6 instrucoes B-Type)
     always @(*) begin
         if (opcode == 7'b1100011) begin
             case (funct3)
