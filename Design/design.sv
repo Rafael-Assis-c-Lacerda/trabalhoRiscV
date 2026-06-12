@@ -21,9 +21,7 @@ module top_processor (
     
     wire pc_src; 
 
-    // ========================================================================
-    // NOVO: LOGICA DE ENDERECAMENTO E SALTOS
-    // ========================================================================
+    // LOGICA DE ENDERECAMENTO E SALTOS
     assign pc_src = jump | (branch & branch_taken);
     
     // Calcula PC + Imediato (Usado por Branches e JAL)

@@ -4,7 +4,7 @@ module tb_top_processor;
     reg clk;
     reg rst;
 
-    // Instancia a Placa-Mãe que está no design.sv
+    // Instancia a Placa-Mae com todos os estagios ja conectados
     top_processor uut (
         .clk(clk),
         .rst(rst)
@@ -15,18 +15,18 @@ module tb_top_processor;
 
     initial begin
         $dumpfile("dump.vcd");
-        $dumpvars(0, tb_top_processor); // Grava as ondas de todos os submódulos
+        $dumpvars(0, tb_top_processor); // Grava a maquina inteira
     end
 
     initial begin
-        // Carrega o arquivo hexadecimal direto na memória ROM que está na Placa-Mãe
+        // Carrega o arquivo hexadecimal com as 39 linhas
         $readmemh("program.hex", uut.rom);
 
         clk = 0;
         rst = 1;      // Ativa o reset
-        #15 rst = 0;  // Solta o reset para o PC começar a contar de 0, 4, 8...
+        #15 rst = 0;  // Solta o reset para o PC comecar a andar
 
-        #1000;        // Tempo para o programa rodar inteiro
+        #1000;        // Tempo suficiente para rodar todo o programa
         $finish;
     end
 endmodule

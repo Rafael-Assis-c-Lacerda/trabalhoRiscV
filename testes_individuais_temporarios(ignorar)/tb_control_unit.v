@@ -24,15 +24,15 @@ module control_unit_tb;
     end
 
     initial begin
-        // --- TESTE 1: R-Type (ADD) ---
+        // TESTE 1: R-Type (ADD)
         opcode = 7'b0110011; 
         #10;
         
-        // --- TESTE 2: Load Word (LW) ---
+        // TESTE 2: Load Word (LW)
         opcode = 7'b0000011;
         #10;
         
-        // --- TESTE 3: Branch (BEQ) ---
+        // TESTE 3: Branch (BEQ)
         opcode = 7'b1100011;
         #10;
         
