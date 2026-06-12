@@ -1,55 +1,53 @@
 // PROGRAMA DE TESTE RISC-V
 
-// PARTE 1: CARREGANDO VARIÁVEIS (U-Type e I-Type)
-lui   x1, 0x12345      // [1] LUI   : Inicializa a matriz central do Pharos
-addi  x2, x0, 10       // [2] ADDI  : Pressão base do vapor = 10
+// PARTE 1: VARIÁVEIS (U-Type e I-Type)
+lui   x1, 0x12345      // [1] LUI   : Inicializa matriz (x1 = 0x12345000)
+addi  x2, x0, 10       // [2] ADDI  : Pressão base = 10
 slti  x3, x2, 15       // [3] SLTI  : 10 < 15? Sim (x3 = 1)
 sltiu x4, x2, -1       // [4] SLTIU : 10 < 0xFFFFFFFF? Sim (x4 = 1)
-xori  x5, x2, 15       // [5] XORI  : Inverte bits de segurança (x5 = 5)
-ori   x6, x5, 8        // [6] ORI   : Ativa sensor auxiliar (x6 = 13)
+xori  x5, x2, 15       // [5] XORI  : Inverte bits (x5 = 5)
+ori   x6, x5, 8        // [6] ORI   : Ativa sensor (x6 = 13)
 andi  x7, x6, 4        // [7] ANDI  : Filtra status (x7 = 4)
-slli  x8, x7, 2        // [8] SLLI  : Multiplica torque por 4 (x8 = 16)
-srli  x9, x8, 1        // [9] SRLI  : Divide energia lógica (x9 = 8)
-srai  x10, x9, 1       // [10] SRAI : Divide mantendo o sinal (x10 = 4)
+slli  x8, x7, 2        // [8] SLLI  : x8 = 16
+srli  x9, x8, 1        // [9] SRLI  : x9 = 8
+srai  x10, x9, 1       // [10] SRAI : x10 = 4
 
-// PARTE 2: OPERAÇÕES DA ULA (R-Type)
-add   x11, x2, x8      // [11] ADD  : Pressão Total = 10 + 16 (x11 = 26)
-sub   x12, x11, x2     // [12] SUB  : Remove pressão base (x12 = 16)
-sll   x13, x12, x7     // [13] SLL  : Aceleração bruta (x13 = 16 << 4 = 256)
+// PARTE 2: ULA (R-Type)
+add   x11, x2, x8      // [11] ADD  : 10 + 16 (x11 = 26)
+sub   x12, x11, x2     // [12] SUB  : 26 - 10 (x12 = 16)
+sll   x13, x12, x7     // [13] SLL  : 16 << 4 (x13 = 256)
 slt   x14, x2, x12     // [14] SLT  : Base < Limite? (x14 = 1)
 sltu  x15, x2, x12     // [15] SLTU : (Unsigned) Base < Limite? (x15 = 1)
-xor   x16, x14, x15    // [16] XOR  : Confirmação de redundância (x16 = 0)
-srl   x17, x13, x7     // [17] SRL  : Desaceleração (x17 = 256 >> 4 = 16)
-sra   x18, x17, x15    // [18] SRA  : Estabiliza engrenagem (x18 = 16 >> 1 = 8)
-or    x19, x18, x2     // [19] OR   : Combina status (x19 = 8 | 10 = 10)
-and   x20, x19, x18    // [20] AND  : Check final de bits (x20 = 10 & 8 = 8)
+xor   x16, x14, x15    // [16] XOR  : 1 ^ 1 (x16 = 0)
+srl   x17, x13, x7     // [17] SRL  : 256 >> 4 (x17 = 16)
+sra   x18, x17, x15    // [18] SRA  : 16 >> 1 (x18 = 8)
+or    x19, x18, x2     // [19] OR   : 8 | 10 (x19 = 10)
+and   x20, x19, x18    // [20] AND  : 10 & 8 (x20 = 8)
 
 // PARTE 3: MEMÓRIA (S-Type e I-Type)
-sw    x20, 0(x0)       // [21] SW   : Grava o log de boot (8) no endereço 0 da RAM
-lw    x21, 0(x0)       // [22] LW   : Lê o log da RAM para validar (x21 = 8)
+sw    x20, 0(x0)       // [21] SW   : Grava 8 no endereço 0 da RAM
+lw    x21, 0(x0)       // [22] LW   : Lê 8 da RAM (x21 = 8)
 
-// PARTE 4: TESTE DE SENSORES E DESVIOS (B-Type)
-// Em cada teste abaixo, a condição é VERDADEIRA, forçando um salto (+8) 
-// que pula exatamente a instrução NOP (ADD x0, x0, x0) seguinte.
-beq   x21, x20, +8     // [23] BEQ  : 8 == 8? Pula o NOP
-add   x0, x0, x0       // NOP (Sera ignorado)
-bne   x21, x0, +8      // [24] BNE  : 8 != 0? Pula o NOP
-add   x0, x0, x0       // NOP (Sera ignorado)
-blt   x0, x21, +8      // [25] BLT  : 0 < 8? Pula o NOP
-add   x0, x0, x0       // NOP (Sera ignorado)
-bge   x21, x0, +8      // [26] BGE  : 8 >= 0? Pula o NOP
-add   x0, x0, x0       // NOP (Sera ignorado)
-bltu  x0, x21, +8      // [27] BLTU : 0 < 8 (Unsigned)? Pula o NOP
-add   x0, x0, x0       // NOP (Sera ignorado)
-bgeu  x21, x0, +8      // [28] BGEU : 8 >= 0 (Unsigned)? Pula o NOP
-add   x0, x0, x0       // NOP (Sera ignorado)
+// PARTE 4: DESVIOS CONDICIONAIS (B-Type)
+// Todos testam como verdadeiro e saltam o NOP (+8 bytes = +2 instruções)
+beq   x21, x20, 8      // [23] BEQ  : 8 == 8? Pula
+addi  x0, x0, 0        // NOP
+bne   x21, x0, 8       // [24] BNE  : 8 != 0? Pula
+addi  x0, x0, 0        // NOP
+blt   x0, x21, 8       // [25] BLT  : 0 < 8? Pula
+addi  x0, x0, 0        // NOP
+bge   x21, x0, 8       // [26] BGE  : 8 >= 0? Pula
+addi  x0, x0, 0        // NOP
+bltu  x0, x21, 8       // [27] BLTU : 0 < 8? Pula
+addi  x0, x0, 0        // NOP
+bgeu  x21, x0, 8       // [28] BGEU : 8 >= 0? Pula
+addi  x0, x0, 0        // NOP
 
 // PARTE 5: SALTOS INCONDICIONAIS (J-Type e I-Type)
-jal   x22, +8          // [29] JAL  : Pula o NOP e salva (PC+4) no registrador x22
-add   x0, x0, x0       // NOP (Sera ignorado)
-jalr  x23, x22, 12     // [30] JALR : Pula para (x22 + 12) e salva PC em x23
-add   x0, x0, x0       // NOP (Sera ignorado)
+jal   x22, 8           // [29] JAL  : Pula NOP e salva endereço em x22
+addi  x0, x0, 0        // NOP
+jalr  x23, 12(x22)     // [30] JALR : Pula para x22+12 e salva em x23
+addi  x0, x0, 0        // NOP
 
-// Loop infinito de seguranca para travar o PC no final do programa
-end_loop:
-jal   x0, 0            // Golem Pharos operacional e aguardando.
+// Fim: Loop de segurança (PC = PC + 0)
+jal   x0, 0
